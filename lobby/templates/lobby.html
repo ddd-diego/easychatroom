@@ -48,27 +48,26 @@ Lobby
     );
 
     let guestname = '';
-    let clientIp = '';
 
     chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
-        console.log(data);
+        console.log(data)
         
+        if (data.message){
+        document.querySelector('#chat-log').value += (data.message + '\n');
+        }
 
-        if (data.chat_guestname && data.client_ip) {
-            guestname = data.chat_guestname;
-            clientIp = data.client_ip;
-
-            document.getElementById('guest-box').innerHTML = `
+        if (data.connected_users){
+            console.log(data.connected_users)
+        document.getElementById('guest-box').innerHTML = `
                 <div class="flex-grow-1">
                     <img style="height:50px; width:50px;" class="rounded float-start m-3" src="...">
-                    <span>${guestname}</span>
+                    <span>${data.connected_users}</span>
                 </div>
                 <button type="button" class="btn btn-success mx-3">Ready!</button>
             `;
-        }
 
-        document.querySelector('#chat-log').value += (data.message + '\n');
+        }
     };
 
     chatSocket.onclose = function(e) {
@@ -83,13 +82,26 @@ Lobby
         }
     };
 
+    function getCookie(name) {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [key, value] = cookie.trim().split('='); 
+            if (key === name) {
+                return decodeURIComponent(value); 
+            }
+        }
+        return null;
+    }
+    const chatGuestname = getCookie("chat_guestname");
+    console.log(chatGuestname);
+
     document.querySelector('#chat-message-submit').onclick = function(e) {
         const messageInputDom = document.querySelector('#chat-message-input');
         const message = messageInputDom.value;
 
         if (message.trim()) {
             chatSocket.send(JSON.stringify({
-                'message': guestname + ": " + message
+                'message': chatGuestname + ": " + message
             }));
             messageInputDom.value = '';
         }
