@@ -19,7 +19,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.client_ip=self.scope['client'][0]
         connected_users.setdefault(self.lobby_name, set()).add((self.chat_guestname, self.client_ip))
         print(connected_users)
-        await self.send(text_data=json.dumps({lobby:list(users)for lobby, users in connected_users.items()}))        
+        await self.send(text_data=json.dumps({
+            "type":"users_update",
+            **{lobby:list(users)for lobby, users in connected_users.items()}
+            }))        
             
 
 
@@ -47,4 +50,4 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if not connected_users[self.lobby_name]:
                 del connected_users[self.lobby_name]
 
-        await self.channel_layer.group_discard(self.lobby_group_name, self.channel_name)
+        await self.chann
