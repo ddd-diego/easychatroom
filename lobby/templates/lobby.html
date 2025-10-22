@@ -25,7 +25,7 @@ Lobby
 
             <span>Jugadores:</span>
                 <div class="py-2 m-2 d-flex justify-content-start">
-                    <div style="width:100%;" class=" d-flex my-3" id="guest-box">
+                    <div style="width:100%;" class=" d-flex flex-column my-3" id="guest-box">
                     </div>
                 </div>
         </div>
@@ -51,21 +51,26 @@ Lobby
 
     chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
-        console.log(data)
         
         if (data.message){
-        document.querySelector('#chat-log').value += (data.message + '\n');
+            document.querySelector('#chat-log').value += (data.message + '\n');
         }
+        
+        const users = data[roomName]
 
-        if (data.connected_users){
-            console.log(data.connected_users)
-        document.getElementById('guest-box').innerHTML = `
+        if (data.type==='users_update'){
+            let html='';
+
+            for(let i=0;i<users.length;i++){
+                html += `
                 <div class="flex-grow-1">
                     <img style="height:50px; width:50px;" class="rounded float-start m-3" src="...">
-                    <span>${data.connected_users}</span>
+                    <span>${users[i][0]}</span>
                 </div>
                 <button type="button" class="btn btn-success mx-3">Ready!</button>
-            `;
+                `;
+            }
+            document.getElementById('guest-box').innerHTML = html;
 
         }
     };
@@ -93,7 +98,6 @@ Lobby
         return null;
     }
     const chatGuestname = getCookie("chat_guestname");
-    console.log(chatGuestname);
 
     document.querySelector('#chat-message-submit').onclick = function(e) {
         const messageInputDom = document.querySelector('#chat-message-input');
